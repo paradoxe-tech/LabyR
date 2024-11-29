@@ -29,9 +29,9 @@ Loggerhead <- R6Class("Loggerhead",
         self$nozzle_diam = as.numeric(self$printer_data$nozzle_diam)
         self$print_speed = as.numeric(self$printer_data$print_speed)
         self$travel_speed = as.numeric(self$printer_data$travel_speed)
+        self$fil_radius = as.numeric(self$printer_data$fil_radius)
       }
       
-      self$fil_radius <- fil_radius
       self$flow_rate <- flow_rate
       self$delta <- delta
       
@@ -59,9 +59,9 @@ Loggerhead <- R6Class("Loggerhead",
     # Méthode publique pour ajouter des polygones au calque
     buildShapes = function(polygons) {
       if(is.null(self$activeLayer)) stop("No active layer selected")
-
+      
       layer <- self$layers[[self$activeLayer]]
-
+      
       for (polygon in polygons) {
         if (!inherits(polygon, "Polygon")) {
           stop("All shapes must be of class 'Polygon'")
@@ -71,8 +71,6 @@ Loggerhead <- R6Class("Loggerhead",
         }
       }
       
-      layer$fixOverlap()
-
       self$layers[[self$activeLayer]] <- layer
     },
 
@@ -109,7 +107,7 @@ Loggerhead <- R6Class("Loggerhead",
           # Aller vers le premier point de la couche !
           # J'ignore la possiblilité où le premier point de la couche aurait FILL
           # car ça n'a aucune utilité d'extruder en montant simplement sur Z (je pense ?)
-          curr_str <- sprintf("G0 X%f Y%f Z%f F%f\n", curr_p[1], curr_p[2], z, self$travel_speed)
+          curr_str <- sprintf("G0 X%f Y%f Z%f F%f E0.000\n", curr_p[1], curr_p[2], z, self$travel_speed/6)
           gcode_str <- paste(gcode_str, curr_str, sep='')
           
           for (j in 1:(length(movs) - 1)) {
@@ -129,7 +127,7 @@ Loggerhead <- R6Class("Loggerhead",
               curr_str <- sprintf("G1 X%f Y%f Z%f F%f E%f\n", next_p[1], next_p[2], z, self$print_speed, extr_l)
             } else {
               # Si FILL = 0 : mouvement rapide G0 (mouvement rapide sans extrusion)
-              curr_str <- sprintf("G0 X%f Y%f Z%f F%f\n", next_p[1], next_p[2], z, self$travel_speed)
+              curr_str <- sprintf("G0 X%f Y%f Z%f F%f E0.000\n", next_p[1], next_p[2], z, self$travel_speed)
             }
             gcode_str <- paste(gcode_str, curr_str, sep='')
             curr_p <- next_p
