@@ -14,19 +14,19 @@ Loggerhead <- R6Class("Loggerhead",
     printer_data = NULL,
     fil_radius = NULL,
     # Valeurs "génériques" (si l'imprimante n'existe pas dans printers.json)
-    nozzle_diam = 0.5,
+    nozzle_diam = 0.2,
     print_speed = 300,
     travel_speed = 9000,
 
-    initialize = function(printer, fil_radius, flow_rate = 1, delta = 0.5) {
+    initialize = function(printer, flow_rate = 1, delta = 0.2) {
       self$layers <- list()
       
       self$printer <- printer
-      self$printer_data = read_json("printers.json")[[printer]]
+      self$printer_data = read_json(paste0(cheminRelatif, "printers.json"))[[printer]]
       if (is.null(self$printer_data)) {
         print("WARNING : Data needed to generate GCode start/end sequences for your printer does not exist (check printers.json)")
       } else {
-        self$nozzle_diam = as.numeric(self$printer_data$nozzle_diam)
+        self$nozzle_diam = 0.1
         self$print_speed = as.numeric(self$printer_data$print_speed)
         self$travel_speed = as.numeric(self$printer_data$travel_speed)
         self$fil_radius = as.numeric(self$printer_data$fil_radius)
@@ -90,7 +90,7 @@ Loggerhead <- R6Class("Loggerhead",
     
     # Méthode publique
     # Pour générer le GCode correspondant à toutes les couches
-    genFile = function(filename = "out.gcode") {
+    genFile = function(filename = paste0(cheminRelatif, "out.gcode")) {
       # En-tête spécifique à l'imprimante
       gcode_str <- paste("; START SEQUENCE (in printers.json)\n", self$printer_data$start_code, sep='')
 
