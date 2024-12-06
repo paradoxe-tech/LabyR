@@ -8,7 +8,7 @@ Les commentaires sont exprimés par ```[...] ;``` _(en n'oubliant pas l'espace)_
 
 Je ne prends pas en compte les commandes de récupération et d'affichage de données en cours.
 ____
-Avant tout, des petites notations avant de comprendre qui doivent être attachés :
+Avant tout pour mieux comprendre, on instaure des notations (toutes attachées) qui permettent d'indiquer nos valeurs :
 * ```X@``` => X + la coordonnée x
 * ```Y@``` => Y + la coordonnée y
 * ```Z@``` => Z + la coordonnée z
