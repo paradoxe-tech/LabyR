@@ -1,3 +1,4 @@
+#Classe définissant des polygones d'après un tracé (ou des sommets) et permettant de les remplir
 Polygon <- R6Class(
   "Polygon",
   class = TRUE,
@@ -5,8 +6,8 @@ Polygon <- R6Class(
   public = list(
     vertices = NULL,
     fill_step = 1,
-    # Liste des sommets du polygone
     
+    # Transforme les tracés en liste des sommets du polygone
     initialize = function(path, fill_step = 1) {
       if (!inherits(path, "Path")) {
         stop("Object passed as first parameter isn't of type 'Path'")
@@ -30,25 +31,25 @@ Polygon <- R6Class(
       self$fill_step <- fill_step
     },
     
-    
-    
     # Méthode publique pour renvoyer un tracé optimisé
     toPrintPath = function() {
       vertices <- self$vertices
       path <- Path$new(vertices[[1]][1], vertices[[1]][2])
       
+      # Trace le contour
       for (i in 2:length(vertices)) {
         point <- vertices[[i]]
         path$move(point[1], point[2])
       }
-      
       path$move(vertices[[1]][1], vertices[[1]][2])
       
+      # Trace une ligne verticale vers un segment 
       v_line = function(posx, posy, x1, y1, x2, y2) {
         tan_a <- (y2 - y1) / (x2 - x1)
         path <- path$move(path$x, tan_a * (posx -x1) + y1)
       }
       
+      # Se dirige d'une valeur donnée (modifiable, permettant de modifier le pourcentage de remplissage) vers un point
       follow = function(add, x1, y1, x2, y2) {
         if (add > 0) {
           if (x1 + add > x2) {
@@ -68,13 +69,14 @@ Polygon <- R6Class(
         return(0)
       }
       
+      # Pour classer les segments en partant du plus à droite, le plus haut
       sum_p = function(c) {
         # A vérifier rigoureusement
-        return(c[1] * 1000 + c[2] + c[3] * 0.001 + c[3] *
+        return(c[1] * 1000 + c[2] + c[3] * 0.001 + c[4] *
                  0.000001)
       }
       
-      # Création d'une liste ordonnée contenant les segments
+      # Création d'une liste contenant les segments
       segments <- list()
       for (i in 1:length(vertices)) {
         i2 <- i + 1
@@ -92,6 +94,8 @@ Polygon <- R6Class(
           )))
         }
       }
+      
+      # Ordonnance des segments
       segments <- segments[order(sapply(segments, sum_p))]
       
       # Création des couples de segments à relier
@@ -107,10 +111,12 @@ Polygon <- R6Class(
         new_segments <- list()
         for (i in segments) {
           cat("\n (", i, ") : ")
+            
+          #Vérifie si les deux segments sont compatibles
           if (!((seg[1] >= i[3]) ||
                 (i[1] >= seg[3]))) {
-            # Les 2 segments sont compatibles
             
+            # Les 2 segments sont compatibles
             debut <- seg[1]
             fin <- seg[3]
             
@@ -143,8 +149,11 @@ Polygon <- R6Class(
               i[4] <- new_i[2]
             }
             
+            
+            # Ajout dans les couples des deux segments uniformisés
             couples <- append(couples, list(c(seg, i)))
             if (fin == seg[3]) {
+              # On est arrivé à la fin du segment
               seg <- c(0, 0, 0, 0)
             } else {
               # On continue le parcours avec la suite du segment
@@ -159,18 +168,18 @@ Polygon <- R6Class(
         segments <- new_segments
       }
       
-      # Passage tortues
+      # Création du remplissage (le tracé)
       step_value <- self$fill_step # La valeur dépend du diamètre de la buse
       for (c in couples) {
         path$move(c[1], c[2], 0.0)
         up <- TRUE
         while (TRUE) {
-          if (up) {
+          if (up) { # Suis le segment du haut, puis trace vers le segment du bas
             if (follow(step_value, path$x, path$y, c[3], c[4]) != 0) {
               break
             }
             v_line(path$x, path$y, c[5], c[6], c[7], c[8])
-          } else {
+          } else { # Suis le segment du bas, puis trace vers le segment du haut
             if (follow(step_value, path$x, path$y, c[7], c[8]) != 0) {
               break
             }
@@ -179,6 +188,8 @@ Polygon <- R6Class(
           up <- !up
         }
       }
+      
+      # Retourne le tracé final
       return(path)
     },
     
