@@ -17,6 +17,7 @@ Avant tout pour mieux comprendre, on instaure des notations (toutes attachées) 
 * ```F@``` => F + la vitesse en mm/min de la tête d'impression pour les mouvements
 * ```E@``` => E + la longueur du filament en millimètre extruder par l'extrudeur
 * ```T@``` => T + la buse choisit 
+* ```@t``` => constante
 * _**P'tite astuce** (pour F@ & T@) :_ il peut être utilisé seul dans une ligne pour appliquer à toutes les commandes prochaines.
 ___
 
@@ -30,6 +31,7 @@ ___
 * La température
 * L'étalonnage et le nivellement du plateau
 * Le ventilateur
+* Quelques commentaires de démarrage
 
 ## Gestion de fichiers et de sauvegardes
 * ```M21``` -> **monter la carte mémoire** (s'il est mise)
@@ -89,17 +91,17 @@ Pour extruder du filament, on doit utiliser le paramètre E@ sur les mouvements 
 
 *  _Quelques exemples :_
    * **Précharger la buse** (conseiller en début d'impression) : 
-    ```gcode
-    G1 E10 F100
-    ```
+      ```gcode
+      G1 E10 F100
+      ```
    * **Retirer du filament** (donc en négatif) : 
-    ```gcode
-    G1 E-5 F100
-    ```
+      ```gcode
+      G1 E-5 F100
+      ```
    * **Réinitialiser uniquement l'extrudeur**
-    ```gcode
-    G92 E0
-    ```
+      ```gcode
+      G92 E0
+      ```
    * **Les méthodes de priming** _(purger)_
     
     Ce sont des méthodes permettant d'éliminer les résidus de filaments, prévenir les bulles d'air et assurer une extrusion de qualité fluide)
@@ -133,7 +135,7 @@ Avant tout, il faut retourner sur la position HOME avec ```G28```,
   * ```M84 S@``` -> similaire à ```M18``` en allant petit à petit, moteurs par moteurs dans un temps donné en secondes _(```S@```)_, soit plus écolo et contrôlé
 
 * **modifier manuellement** le décalage de l'axe Z entre **la sonde de nivellement** (capteur) ET **la buse** 
-```gcode
+  ```gcode
   M851 Z@
   M500
   ```
@@ -141,12 +143,12 @@ Avant tout, il faut retourner sur la position HOME avec ```G28```,
 * ```G29``` -> **démarrer le nivellement automatique**
   
 * **activer la compensation de la carte de nivellement** acquis par le nivellement automatique _(dépend selon les firmwares)_
-```gcode
+  ```gcode
   M420 S1
   M500
   ```
 * **désactiver la compensation** _(soit fais abstraction du nivellement automatique)_
-```gcode
+  ```gcode
   M420 S0
   M500
   ```
@@ -157,6 +159,49 @@ Avant tout, il faut retourner sur la position HOME avec ```G28```,
   *  ```P@``` => P + le ventilateur concerné _(sans ce paramètre, tout les ventilateurs sont concernés)_
   *  ```F@``` => F + la fréquence PWM _(optionnelle mais efficace pour réduire le bruit)_
 *  ```M107``` -> **désactiver** le ventilateur 
+
+
+## Quelques commentaires de démarrage
+* ```;PRINT.GROUPS:@t``` -> **gérer plus facilement les groupes d'objets**, une manière de structurer pour les professionnels
+* ```;PRINT.TIME:@t``` -> **définir le temps à l'imprimante** pour avoir un système de minuteur
+* ```;TARGET_MACHINE.NAME:@t``` -> **définir le nom de l'imprimante** _(marque et modèle)_
+
+* **les paramètres spécialement pour la tête d'impression**
+  * ```;EXTRUDER_TRAIN.@t1.INITIAL_TEMPERATURE:@t2``` -> indique **la température @t2** de la _buse @t1_ en début d'impression 
+  * ```;EXTRUDER_TRAIN.@t1.MATERIAL.VOLUME_USED:@t2``` -> **la quantité estimée @t2 de matériau** pour l'impression pour la _buse @t1_
+  * ```;EXTRUDER_TRAIN.@t1.MATERIAL.GUID:@t2``` -> **le matériau @t2** utilisé pour la _buse @t1_
+  * ```;EXTRUDER_TRAIN.@t1.NOZZLE.DIAMETER:@t2``` -> **le diamètre @t2** de la _buse @t1_
+  * ```;EXTRUDER_TRAIN.@t1.NOZZLE.NAME:@t2``` -> indique **le type ou/et la taille @t2** de la _buse utilisée @t1_
+
+* ```;BUILD_PLATE.INITIAL_TEMPERATURE:@t``` -> **initialisation de la température** de départ du **plateau**
+  
+* ```;BUILD_VOLUME.TEMPERATURE:@t``` -> **définir la température ambiante dans l'enceinte de l'imprimante** _(utile dans certaines imprimantes comme Ultimaker ou encore pour certains matériaux)_
+* ```;SLICE_UUID:@t``` -> **d'identifier l'origine exacte du fichier G-code** _(pratique pour reprendre le G-Code dans un slicer comme Cura)_
+
+* **définir les estimations des dimensions de l'impression**
+  ```
+  ;PRINT.SIZE.MIN.X:@t
+  ;PRINT.SIZE.MIN.Y:@t
+  ;PRINT.SIZE.MIN.Z:@t
+  ;PRINT.SIZE.MAX.X:@t
+  ;PRINT.SIZE.MAX.Y:@t
+  ;PRINT.SIZE.MAX.Z:@t
+  ```
+
+* exemple **début/fin des commentaires** d'un slicer : _Cura_
+  ```
+  ;START_OF_HEADER
+  ;HEADER_VERSION:0.1
+  ;FLAVOR:Griffin
+  ;GENERATOR.NAME:Cura_SteamEngine
+  ;GENERATOR.VERSION:5.8.1
+  ;GENERATOR.BUILD_DATE:2024-08-28
+
+
+  ;Generated with Cura_SteamEngine 5.8.1
+  ;END_OF_HEADER
+  ```
+
 
 
 [source de déplacement en ligne droite]: https://www.e-techno-tutos.com/2018/06/10/gcode-g00-g01/ "explication en détails schématique"
