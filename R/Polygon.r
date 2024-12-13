@@ -1,6 +1,5 @@
-source("vec_utils.R")
+source("vectors.R")
 
-#Classe définissant des polygones d'après un tracé (ou des sommets) et permettant de les remplir
 Polygon <- R6Class(
   "Polygon",
   class = TRUE,
@@ -10,31 +9,37 @@ Polygon <- R6Class(
     segments = NULL,
     fill_step = 1,
     
-    # Transforme les tracés en liste des sommets du polygone
-    initialize = function(path, origin = c(0,0), fill_step = 1) {
+    #' Instancie un objet `Polygon`.
+    #' @param path le tracé à partir duquel construire le polygone.
+    #' @param origin l'origine du polygone.
+    initialize = function(path, origin = c(0, 0)) {
       if (!inherits(path, "Path")) {
         stop("Object passed as first parameter isn't of type path")
       }
-      
+
       movements <- path$movements
       if (length(movements) < 3) {
         stop("No polygon can be built with less than 3 vertices")
       }
-      
+
       first_point <- movements[[1]][1:2]
       last_point <- movements[[length(movements)]][1:2]
-      
+
       if (!all(first_point == last_point)) {
         stop("No polygon can be built from an open path")
       }
-      
-      self$vertices <- lapply(movements, function(m) c(m[[1]]+origin[[1]], m[[2]]+origin[[2]]))
-      
+
+      self$vertices <- lapply(movements, function(m) {
+        return(c(m[[1]] + origin[[1]], m[[2]] + origin[[2]]))
+      })
+
       self$fill_step <- fill_step
     },
-    
-    # Méthode publique pour renvoyer un tracé optimisé
-    toPrintPath = function(layer) {
+
+    #' Retourne le chemin à suivre pour imprimer le polygone.
+    #' @param layer le calque sur lequel imprimer le polygone.
+    #' @return Un objet `Path`.
+    toBestPath = function(layer) {
       vertices <- self$vertices
       path <- Path$new(vertices[[1]][1], vertices[[1]][2])
       t <- 2 # insérer taille du trait 
@@ -368,7 +373,7 @@ Polygon <- R6Class(
     },
     
     # ray-casting
-    inside = function(x, y, eps = 0.0001) {
+    inside = function(x, y, epsilon = 0.0001) {
       n <- length(self$vertices)
       
       f <- function(e_x, e_y) {
@@ -392,18 +397,24 @@ Polygon <- R6Class(
       }
       
       return(f(x, y)
-             || f(x + eps, y)
-             || (if (x-eps >= 0) f(x - eps, y) else FALSE)
-             || f(x, y + eps)
-             || (if (y-eps >= 0) f(x, y - eps) else FALSE))
+             || f(x + epsilon, y)
+             || (if (x-epsilon >= 0) f(x - epsilon, y) else FALSE)
+             || f(x, y + epsilon)
+             || (if (y-epsilon >= 0) f(x, y - epsilon) else FALSE))
 
     },
     
     
-    # méthode publique pour fusionner ce polygone
-    # avec un autre polygone passé en paramètres
-    # @return: (list of Polygon) 
-    merge = function(polygon, eps = 0.001) {
+    #' Fusionne deux polygones.
+    #' @param polygon le polygone à fusionner.
+    #' @param epsilon la marge d'erreur pour les calculs.
+    #' @return Un objet `Polygon`.
+    #' @examples
+    #' polygon1 <- Polygon$new(path1)
+    #' polygon2 <- Polygon$new(path2)
+    #' polygon1$merge(polygon2)
+    #' @export
+    merge = function(polygon, epsilon = 0.001) {
       intersections <- private$intersections(polygon) # type@list(list<2>)
       if(is.null(intersections)) return(c(self, polygon))
       
@@ -441,14 +452,8 @@ Polygon <- R6Class(
           # et donc on ne l'inclut pas
           beta1 <- beta(point1, self, polygon)
           beta2 <- beta(point2, self, polygon)
-          print(point1)
-          print(beta1)
-          print(point2)
-          print(beta2)
-          #print(beta2)
-          if(beta1 + beta2 == 4) next
-          
 
+          if(beta1 + beta2 == 4) next
           
           is_duplicate <- FALSE
           for (s in segments) {
@@ -478,8 +483,9 @@ Polygon <- R6Class(
   
   private = list(
     
-    # méthode privée pour obtenir les coordonnées
-    # des points d'intersection entre deux polygones
+    #' Calcule les intersections entre deux polygones.
+    #' @param polygon le polygone à comparer.
+    #' @return Une liste de coordonnées.
     intersections = function(polygon) {
       coords <- list()
       
