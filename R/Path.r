@@ -17,12 +17,12 @@ Path <- R6Class("Path",
     #' @examples
     #' path <- Path$new(0, 0, c(1, 0))
     #' @export
-    initialize = function(x=0, y=0, facing=c(1, 0)) {
+    initialize = function(x=0, y = 0, facing = c(1, 0)) {
       self$facing <- facing
       self$x <- x
       self$y <- y
       self$movements <- list(c(x, y, 0.0)) # Pas de FILL pour le début du Path
-    }, 
+    },
 
     #' Crée un objet `Path` à partir de coordonnées.
     #' @param coords les coordonnées du chemin.
@@ -49,10 +49,10 @@ Path <- R6Class("Path",
     #' path <- Path$new(0, 0, c(1, 0))
     #' path$forward(10)
     #' @export
-    forward = function(value, fill=1.0) {
+    forward = function(value, fill = 1.0) {
       new_x <- self$x + value * self$facing[1]
       new_y <- self$y + value * self$facing[2]
-      
+
       self$move(new_x, new_y, fill)
 
       self$x <- new_x
@@ -142,7 +142,7 @@ Path <- R6Class("Path",
       movement_path <- paste(movement_strings, collapse = " -> ")
       cat("<Path>", movement_path, "\n", sep = " ")
     },
-    
+
     #' Affiche le chemin sous forme de graphique.
     #' @examples
     #' path <- Path$new(0, 0, c(1, 0))
@@ -157,17 +157,16 @@ Path <- R6Class("Path",
       curr_pos <- self$movements[[1]]
       turtle_goto(curr_pos[1], curr_pos[2])
       for (i in 1:(length(self$movements) - 1)) {
-        next_pos <- self$movements[[i+1]]
+        next_pos <- self$movements[[i + 1]]
 
         # Si ce vecteur a la mention FILL
         if (next_pos[3] != 0) {
           turtle_down()
-          turtle_col(col='black')
-          #print(next_pos)
+          turtle_col(col = 'black')
           turtle_goto(next_pos[1], next_pos[2])
         } else { 
           turtle_up()
-          turtle_col(col='red')
+          turtle_col(col = 'red')
           turtle_goto(next_pos[1], next_pos[2])
         }
         Sys.sleep(0.3)
