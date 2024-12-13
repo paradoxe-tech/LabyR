@@ -1,0 +1,10 @@
+Package: LabyR
+Title: Generate 3D printing files from turtle-like drawing syntax
+Version: 0.0.0.9000
+Authors@R: 
+    person("Eloi", "Rathgeber-Kivits", , "eloi.rathgeber@gmail.com", role = c("aut", "cre"))
+Description: A package to generate 3D printing files (in gcode format) from turtle instructions, which allow you to draw by programming, simply and in an (almost) purely imperative manner.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
