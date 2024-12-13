@@ -4,19 +4,9 @@ Un package pour générer des fichiers d'impression 3D (au format `gcode`) à pa
 ## Installation et Usage
 
 ```r
-install.packages("TurtleGraphics") # librairie pour le dessin tortue
-install.packages("R6") # implémentation de classes
-```
-
-Pour l'instant, le projet n'est pas déployé sous forme de paquet R.
-
-```r
-source('classes/Loggerhead.r')
-source('classes/Path.r')
-source('classes/Polygon.r')
-
-# Instanciation de la tortue
-turtle <- Loggerhead$new()
+install.packages("devtools")
+devtools::install_github("Mathuww/PrintR")
+library(PrintR)
 ```
 
 ## Dessin 2-dimensionnel
