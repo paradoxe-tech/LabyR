@@ -1,4 +1,4 @@
-# LabyR
+# Turtle-like PrintR
 Un package pour générer des fichiers d'impression 3D (au format `gcode`) à partir d'instructions "Turtle", qui permettent de dessiner en programmant, simplement et de manière (presque) purement impérative.
 
 ## Installation et Usage
